@@ -1,0 +1,32 @@
+---
+name: Check MatsuriDayo/nekoray New Release Create Local Repo Release
+
+
+on:
+  schedule:
+    # Executed every Wednesday and Friday
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  steps:
+    - name: Get nekoray last tag
+      # result: steps.id.outputs.tag
+      id:  nekoray_release 
+      uses: tdemin/find-latest-tag@v1
+      with:
+        repo: https://github.com/MatsuriDayo/nekoray.git
+    - name: Get Local Release
+      id: local_release
+      uses: tdemin/find-latest-tag@v1
+      with:
+        repo: https://github.com/Livenux/action-test.git
+    - name: Print local and remote release tags
+      run:  echo "Nekoray Release Tag: " ${{ steps.nekoray_release.outputs.tag }}  "Local Release Tag: " ${{ steps.local_release.outpus.tag }}
+    - name: Compare local and remote release tags
+      if: steps.nekoray_release.outputs.tag == steps.local_release.outpus.tag
+      run echo Tags Matched
+
+
+
+
