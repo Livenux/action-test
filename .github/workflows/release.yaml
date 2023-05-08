@@ -30,10 +30,11 @@ jobs:
           echo Nekoray Release Tag =  "${{ steps.nekoray_release.outputs.tag }}"
           echo Local Release Tag = "${{ steps.local_release.outputs.tag }}"
       
-      if: steps.nekoray_release.outputs.tag != steps.local_release.outputs.tag
       - name: Checkout Self
+        if: steps.nekoray_release.outputs.tag != steps.local_release.outputs.tag
         uses: actions/checkout@v3
       - name: Create Local Release
+        if: steps.nekoray_release.outputs.tag != steps.local_release.outputs.tag
         id: create_release
         uses: ncipollo/release-action@v1
         with:
