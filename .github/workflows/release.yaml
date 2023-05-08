@@ -1,5 +1,5 @@
 ---
-name: Check MatsuriDayo/nekoray New Release Create Local Repo Release
+name: Check MatsuriDayo/nekoray New Release To Create Local Repo Release
 
 
 on:
@@ -9,28 +9,35 @@ on:
   workflow_dispatch:
 
 jobs:
-  compare:
+  create_release:
     runs-on: ubuntu-latest
     steps:
       - name: Get nekoray last tag
         # result: steps.id.outputs.tag
         id:  nekoray_release 
-        uses: tdemin/find-latest-tag@v1
+        uses: oprypin/find-latest-tag@v1
         with:
-          repo: https://github.com/MatsuriDayo/nekoray.git
+          repository: MatsuriDayo/nekoray
+          releases-only: true
       - name: Get Local Release
         id: local_release
-        uses: tdemin/find-latest-tag@v1
+        uses: oprypin/find-latest-tag@v1
         with:
-          repo: https://github.com/Livenux/action-test.git
+          repository: Livenux/action-test
+          releases-only: true
       - name: Print local and remote release tags
         run: |
           echo Nekoray Release Tag =  "${{ steps.nekoray_release.outputs.tag }}"
-          echo Local Release Tag = "${{ steps.local_release.outpus.tag }}"
-      - name: Compare local and remote release tags
-        if: steps.nekoray_release.outputs.tag == steps.local_release.outpus.tag
-        run: echo Tags Matched
-
-
-
-
+          echo Local Release Tag = "${{ steps.local_release.outputs.tag }}"
+      
+      if: steps.nekoray_release.outputs.tag != steps.local_release.outputs.tag
+      - name: Checkout Self
+        uses: actions/checkout@v3
+      - name: Create Local Release
+        id: create_release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: $${{ steps.nekoray_release.outputs.tag }}
+          body: |
+            Build nekoray from https://github.com/MatsuriDayo/nekoray
+            Release Note see: https://github.com/MatsuriDayo/nekoray/releases/tag/${{ steps.nekoray_release.outputs.tag }}
