@@ -25,7 +25,7 @@ jobs:
       run:  echo Nekoray Release Tag ->  ${{ steps.nekoray_release.outputs.tag }}  Local Release Tag ->  ${{ steps.local_release.outpus.tag }}
     - name: Compare local and remote release tags
       if: steps.nekoray_release.outputs.tag == steps.local_release.outpus.tag
-      run echo Tags Matched
+      run: echo Tags Matched
 
 
 
