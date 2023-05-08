@@ -38,7 +38,7 @@ jobs:
         id: create_release
         uses: ncipollo/release-action@v1
         with:
-          tag: $${{ steps.nekoray_release.outputs.tag }}
+          tag: ${{ steps.nekoray_release.outputs.tag }}
           body: |
             Build nekoray from https://github.com/MatsuriDayo/nekoray
             Release Note see: https://github.com/MatsuriDayo/nekoray/releases/tag/${{ steps.nekoray_release.outputs.tag }}
