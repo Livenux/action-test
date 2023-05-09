@@ -20,7 +20,7 @@ jobs:
       - name: Install Dependencies
         run: |
           brew update
-          brew install cmake ninja  macdeployqt qt@5
+          brew install cmake ninja qt@5
           brew upgrade
           npm install -g appdmg
       - name: Set Environment
