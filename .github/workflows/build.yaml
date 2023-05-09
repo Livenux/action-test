@@ -22,7 +22,6 @@ jobs:
         run: |
           brew update
           brew install cmake ninja qt@5
-          brew upgrade
           npm install -g appdmg
       - name: Set Environment
         run: |
