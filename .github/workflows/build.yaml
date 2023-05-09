@@ -74,7 +74,7 @@ jobs:
         working-directory: ./nekoray/build
         run: |
           cp fa_IR.qm $NEKORAY_APP/Contents/MacOS
-          cp zn_CN.qm $NEKORAY_APP/Contents/MacOS
+          cp zh_CN.qm $NEKORAY_APP/Contents/MacOS
       - name: Add Core file
         working-directory: ./nekoray/build
         run: |
