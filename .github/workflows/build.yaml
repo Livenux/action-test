@@ -3,13 +3,14 @@ name: Build and upload Artifact
 
 on:
   release:
-    types: [published, created]
+    types: [published, released]
   workflow_dispatch:
 
 env:
   MACOSX_DEPLOYMENT_TARGET: 10.9
   GOOS: darwin
   GOARCH: amd64
+  GITHUB_TOKEN: ${{ secrets.PAT }}
 
 jobs:
   build:
