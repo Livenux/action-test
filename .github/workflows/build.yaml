@@ -1,0 +1,81 @@
+---
+name: Build and upload Artifact
+
+on:
+  release:
+    types: [published, created]
+  workflow_dispatch:
+
+env:
+  MACOSX_DEPLOYMENT_TARGET: 10.9
+  GOOS: darwin
+  GOARCH: amd64
+
+jobs:
+  build:
+    runs-on: macos-latest
+    name: Build Nekoray
+
+    steps:
+      - name: Install Dependencies
+        run: |
+          brew update
+          brew install cmake ninja  macdeployqt qt@5
+          brew upgrade
+          npm install -g appdmg
+      - name: Set Environment
+        run: |
+          echo /usr/local/opt/qt@5/bin >> $GITHUB_PATH
+          echo LDFLAGS="-L/usr/local/opt/qt@5/lib" >> $GITHUB_ENV
+          echo CPPFLAGS="-I/usr/local/opt/qt@5/include" >> $GITHUB_ENV
+          echo PKG_CONFIG_PATH="/usr/local/opt/qt@5/lib/pkgconfig" >> $GITHUB_ENV
+          echo NEKORAY_SOURCE=$PWD/nekoray >> $GITHUB_ENV
+          echo NEKORAY_APP=nekoray-${{ github.ref_name }}-MacOS-Intel.app >> $GITHUB_ENV
+          echo NEKORAY_DMG=nekoray-${{ github.ref_name }}-MacOS-Intel.dmg >> $GITHUB_ENV
+
+      - name: Checkout Nekoray
+        uses: actions/checkout@v3
+        with:
+          repository: MatsuriDayo/nekoray
+          path: nekoray
+          ref: ${{ github.ref_name }}
+      - name: Build c/c++ Dependencies
+        run: |
+          cd nekoray
+          mkdir -p nekoray/build
+          bash ./libs/build_deps_all.sh
+      - name: Get Go Source and Build Core
+        # core path $PWD/deployment/macos-amd64
+        run: |
+          bash libs/get_source.sh
+          bash libs/build_go.sh
+      - name: Build Nekoray
+        run: |
+          cd build
+          cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DNKR_PACKAGE_MACOS=1 ..
+          ninja
+          macdeployqt $NEKORAY_APP -verbose=1
+
+      - name: Download Geo Data
+        run: |
+          curl -fLso $NEKORAY_APP/Contents/MacOS/geoip.dat "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat"
+          curl -fLso $NEKORAY_APP/Contents/MacOS/geosite.dat "https://github.com/v2fly/domain-list-community/releases/latest/download/dlc.dat"
+          curl -fLso $NEKORAY_APP/Contents/MacOS/geoip.db "https://github.com/SagerNet/sing-geoip/releases/latest/download/geoip.db"
+          curl -fLso $NEKORAY_APP/Contents/MacOS/geosite.db "https://github.com/SagerNet/sing-geosite/releases/latest/download/geosite.db"
+      - name: Add Luanguage File
+        run: |
+          cp fa_IR.qm $NEKORAY_APP/Contents/MacOS
+          cp zn_CN.qm $NEKORAY_APP/Contents/MacOS
+      - name: Add Core file
+        run: |
+          cp $NEKORAY_SOURCE/deployment/macos-$GOARCH/* $NEKORAY_APP/Contents/MacOS
+      - name: Create DMG-images
+        run: |
+          cd $NEKORAY_SOURCE
+          sed -i'' -e "s/nekoray.app/$NEKORAY_APP/g" appdmg.json
+          appdmg appdmg.json build/$NEKORAY_DMG
+      - name: Upload elease assets
+        run: gh release upload ${{ github.ref_name }} build/$NEKORAY_DMG
+
+
+
