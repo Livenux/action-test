@@ -1,5 +1,5 @@
 ---
-name: Check MatsuriDayo/nekoray New Release To Create Local Repo Release
+name: Create Release
 
 
 on:

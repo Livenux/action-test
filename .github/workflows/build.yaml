@@ -2,8 +2,12 @@
 name: Build and upload Artifact
 
 on:
-  release:
-    types: [published, released]
+  workflow_run:
+    workflows: ["Create Release"]
+    types:
+      - completed
+#  release:
+#   types: [published, released]
   workflow_dispatch:
 
 env:
@@ -56,7 +60,8 @@ jobs:
         run: |
           cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DNKR_PACKAGE_MACOS=1 ..
           ninja
-          macdeployqt $NEKORAY_APP -verbose=1
+          macdeployqt nekoray.app -verbose=1
+          mv nekoray.app $NEKORAY_APP
 
       - name: Download Geo Data
         working-directory: ./nekoray/build
