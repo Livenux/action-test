@@ -40,42 +40,51 @@ jobs:
           path: nekoray
           ref: ${{ github.ref_name }}
       - name: Build c/c++ Dependencies
+        working-directory: ./nekoray
         run: |
-          cd nekoray
-          mkdir -p nekoray/build
+          mkdir -p build
           bash ./libs/build_deps_all.sh
       - name: Get Go Source and Build Core
+        working-directory: ./nekoray
         # core path $PWD/deployment/macos-amd64
         run: |
+          echo github working in "${{ github.workspace }}", Current Directory is $PWD
           bash libs/get_source.sh
+               libs/get_source.sh
           bash libs/build_go.sh
       - name: Build Nekoray
+        working-directory: ./nekoray/build
         run: |
-          cd build
+          echo github working in "${{ github.workspace }}", Current Directory is $PWD
           cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DNKR_PACKAGE_MACOS=1 ..
           ninja
           macdeployqt $NEKORAY_APP -verbose=1
 
       - name: Download Geo Data
+        working-directory: ./nekoray/build
         run: |
           curl -fLso $NEKORAY_APP/Contents/MacOS/geoip.dat "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat"
           curl -fLso $NEKORAY_APP/Contents/MacOS/geosite.dat "https://github.com/v2fly/domain-list-community/releases/latest/download/dlc.dat"
           curl -fLso $NEKORAY_APP/Contents/MacOS/geoip.db "https://github.com/SagerNet/sing-geoip/releases/latest/download/geoip.db"
           curl -fLso $NEKORAY_APP/Contents/MacOS/geosite.db "https://github.com/SagerNet/sing-geosite/releases/latest/download/geosite.db"
       - name: Add Luanguage File
+        working-directory: ./nekoray/build
         run: |
           cp fa_IR.qm $NEKORAY_APP/Contents/MacOS
           cp zn_CN.qm $NEKORAY_APP/Contents/MacOS
       - name: Add Core file
+        working-directory: ./nekoray/build
         run: |
           cp $NEKORAY_SOURCE/deployment/macos-$GOARCH/* $NEKORAY_APP/Contents/MacOS
       - name: Create DMG-images
+        working-directory: ./nekoray
         run: |
           cd $NEKORAY_SOURCE
           sed -i'' -e "s/nekoray.app/$NEKORAY_APP/g" appdmg.json
           appdmg appdmg.json build/$NEKORAY_DMG
       - name: Upload elease assets
-        run: gh release upload ${{ github.ref_name }} build/$NEKORAY_DMG
+        working-directory: ./nekoray/build
+        run: gh release upload ${{ github.ref_name }} $NEKORAY_DMG
 
 
 
