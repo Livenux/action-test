@@ -50,12 +50,14 @@ jobs:
         run: |
           echo github working in "${{ github.workspace }}", Current Directory is $PWD
           bash libs/get_source.sh
-               libs/get_source.sh
           bash libs/build_go.sh
       - name: Build Nekoray
         working-directory: ./nekoray/build
         run: |
           echo github working in "${{ github.workspace }}", Current Directory is $PWD
+          echo ===================Debug QHotKey list miss CMakeLists.txt========================
+          ls ../3rdparty/QHotkey
+          ls -R ../
           cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DNKR_PACKAGE_MACOS=1 ..
           ninja
           macdeployqt $NEKORAY_APP -verbose=1
