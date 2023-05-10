@@ -22,6 +22,12 @@ jobs:
     name: Build Nekoray
 
     steps:
+      - name: Get Last Release
+        id: latest-release
+        uses: oprypin/find-latest-tag@v1
+        with:
+          repository: fincod/actions-test
+          releases-only: true
       - name: Install Dependencies
         run: |
           brew update
@@ -87,7 +93,7 @@ jobs:
           appdmg appdmg.json build/$NEKORAY_DMG
       - name: Upload elease assets
         working-directory: ./nekoray/build
-        run: gh release upload ${{ github.ref_name }} $NEKORAY_DMG
+        run: gh release upload ${{ steps.latest-release.outputs.tag }} $NEKORAY_DMG
 
 
 
